@@ -233,11 +233,12 @@ Let's get started!
 
     * To use a _locally-running_ agent, ensure the ``local`` profile is selected in Step 6 and adjust your agent parameters on the frontend to the following. Then save your changes. 
 
-    ```json
-    ...
+    ```
     {
-        "name": "meta/llama-3.1-8b-instruct",
-        "api_base": "http://pdf-to-podcast-local-nim-1:8000/v1"
+        "reasoning": {
+            "name": "meta/llama-3.1-8b-instruct",
+            "api_base": "http://pdf-to-podcast-local-nim-1:8000/v1"
+        },
+        ...
     }
-    ...
     ```
