@@ -235,7 +235,7 @@ Let's get started!
         * Specify your agent parameters (local vs Build endpoints),
         * Upload your own locally-stored, custom PDFs
         * View and download your generated podcast locally
-        * Optionally email your generated podcast to a recipient
+        * (optional) Email your generated podcast to a recipient
     * To use a _locally-running_ agent, ensure the ``local`` profile is selected in Step 6 and adjust your agent parameters on the frontend to the following. Then save your changes. 
 
     ```
