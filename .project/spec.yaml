@@ -120,9 +120,9 @@ execution:
   secrets:
   - variable: ELEVENLABS_API_KEY
     description: ""
-  - variable: NIM_KEY
-    description: ""
   - variable: SENDER_EMAIL_PASSWORD
+    description: ""
+  - variable: NVIDIA_API_KEY
     description: ""
   mounts:
   - type: project

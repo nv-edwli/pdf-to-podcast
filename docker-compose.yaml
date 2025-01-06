@@ -1,4 +1,29 @@
 services:
+  local-nim:
+    image: nvcr.io/nim/meta/llama-3.1-8b-instruct:latest
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ~/.cache/nim
+        target: /opt/nim/.cache/
+    environment:
+      - NIM_MODEL_PROFILE=193649a2eb95e821309d6023a2cabb31489d3b690a9973c7ab5d1ff58b0aa7eb
+      - NGC_API_KEY=${NVIDIA_API_KEY:?Error NVIDIA_API_KEY not set}
+      - NVWB_TRIM_PREFIX=true
+    networks:
+      - app-network
+    profiles:
+      - local
+      
   redis:
     image: redis:latest
     ports:
@@ -6,6 +31,8 @@ services:
     command: redis-server --appendonly no
     networks:
       - app-network
+    environment:
+      - NVWB_TRIM_PREFIX=true
 
   minio:
     image: minio/minio:latest
@@ -15,8 +42,9 @@ services:
     environment:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
+      - NVWB_TRIM_PREFIX=true
     volumes:
-      - ./data/minio:/data
+      - minio_data:/data
     command: minio server /data --console-address ":9001"
     networks:
       - app-network
@@ -37,6 +65,7 @@ services:
       - AGENT_SERVICE_URL=http://agent-service:8964
       - TTS_SERVICE_URL=http://tts-service:8889
       - REDIS_URL=redis://redis:6379
+      - NVWB_TRIM_PREFIX=true
     depends_on:
       - redis
       - pdf-service
@@ -56,6 +85,7 @@ services:
       - NVIDIA_API_KEY=${NVIDIA_API_KEY}
       - REDIS_URL=redis://redis:6379
       - MODEL_CONFIG_PATH=/app/config/models.json
+      - NVWB_TRIM_PREFIX=true
     volumes:
       - ./models.json:/app/config/models.json
     depends_on:
@@ -72,6 +102,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - MODEL_API_URL=${MODEL_API_URL:-http://pdf-api:8004}
+      - NVWB_TRIM_PREFIX=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -89,6 +120,7 @@ services:
       - MAX_CONCURRENT_REQUESTS=${MAX_CONCURRENT_REQUESTS}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
       - REDIS_URL=redis://redis:6379
+      - NVWB_TRIM_PREFIX=true
     depends_on:
       - redis
     networks:
@@ -102,6 +134,7 @@ services:
       - "4318:4318" # OTLP HTTP
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+      - NVWB_TRIM_PREFIX=true
     healthcheck:
       test: ["CMD", "wget", "--spider", "localhost:16686"]
       interval: 5s
@@ -122,6 +155,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - TEMP_FILE_DIR=/tmp/pdf_conversions
+      - NVWB_TRIM_PREFIX=true
     volumes:
       - pdf_temp:/tmp/pdf_conversions
     depends_on:
@@ -139,6 +173,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - TEMP_FILE_DIR=/tmp/pdf_conversions
+      - NVWB_TRIM_PREFIX=true
     volumes:
       - pdf_temp:/tmp/pdf_conversions
     depends_on:
@@ -150,6 +185,7 @@ services:
 volumes:
   redis_data:
   pdf_temp:
+  minio_data:
 
 networks:
   app-network:
