@@ -231,19 +231,7 @@ Let's get started!
 
 8. (Option 2) Run the **Frontend application**. On the top right of the AI Workbench window, select **Open Frontend**.
 
-    * From here, you can
-        * Specify your agent parameters (local vs Build endpoints),
-        * Upload your own locally-stored, custom PDFs
-        * View and download your generated podcast locally
-        * (optional) Email your generated podcast to a recipient
-    * To use a _locally-running_ agent, ensure the ``local`` profile is selected in Step 6 and adjust your agent parameters on the frontend to the following. Then save your changes. 
-
-    ```
-    {
-        "reasoning": {
-            "name": "meta/llama-3.1-8b-instruct",
-            "api_base": "http://pdf-to-podcast-local-nim-1:8000/v1"
-        },
-        ... // eg. adjust as necessary for 'json' and 'iteration'
-    }
-    ```
+    * Specify your agent parameters (local vs Build endpoints),
+    * Upload your own locally-stored, custom PDFs
+    * View and download your generated podcast locally
+    * (optional) Email your generated podcast to a recipient
