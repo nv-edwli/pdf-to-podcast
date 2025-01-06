@@ -1,8 +1,8 @@
 specVersion: v2
 specMinorVersion: 2
 meta:
-  name: ai-research-assistant
-  image: project-ai-research-assistant
+  name: pdf-to-podcast
+  image: project-pdf-to-podcast
   description: ""
   labels: []
   createdOn: "2024-12-06T19:19:11Z"
