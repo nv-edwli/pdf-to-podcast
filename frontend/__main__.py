@@ -45,15 +45,15 @@ Text-to-Speech (TTS) Service
 CONFIG_INSTRUCTIONS_MARKDOWN="""
 Use this editor to configure your long-reasoning agent. 
 
-**Note:** The default configuration is for a **locally** running ``llama-3.1-8b-instruct`` NIM.
+**Note:** The default configuration is for Build endpoints on the NVIDIA API Catalog. To use a local agent, ensure the compose services are running with the ``local`` profile. 
 
-Example: Using build.nvidia.com endpoints
+**Example**: Using a _locally_ running ``llama-3.1-8b-instruct`` NVIDIA NIM
 
 ```
 {
   "reasoning": {
-    "name": "meta/llama-3.1-70b-instruct",
-    "api_base": "https://integrate.api.nvidia.com/v1"
+    "name": "meta/llama-3.1-8b-instruct",
+    "api_base": "http://pdf-to-podcast-local-nim-1:8000/v1"
   },
   ...
 }
