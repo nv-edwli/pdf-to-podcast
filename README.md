@@ -221,7 +221,7 @@ Let's get started!
 5. When the build completes, set the following configurations.
 
    * `Environment` &rarr; `Secrets` &rarr; `Configure`. Specify the ``NVIDIA_API_KEY`` and ``ELEVENLABS_API_KEY`` Key.
-   * (Optional) To use the email functionality on the frontend application to send your generated podcasts to a recipient, you may also add a ``SENDER_EMAIL_PASSWORD`` secret to the project. For example, if you have a Gmail account you can create an App Password ([docs](https://support.google.com/mail/answer/185833)). 
+   * (Optional) To use the email functionality on the frontend application to send your generated podcasts to a recipient, you may also add a ``SENDER_EMAIL`` variable and a ``SENDER_EMAIL_PASSWORD`` secret to the project. Gmail sender accounts are currently supported; you can create an App Password for your account [here](https://support.google.com/mail/answer/185833). 
 
 6. Navigate to `Environment` &rarr; `Compose` and **Start** the Docker compose services. You can view progress under **Output** on the bottom left and selecting **Compose** logs from the dropdown. It may take a few minutes to pull and build the services. 
 
@@ -231,7 +231,7 @@ Let's get started!
 
 8. (Option 2) Run the **Frontend application**. On the top right of the AI Workbench window, select **Open Frontend**.
 
-    * Specify your agent parameters (local vs Build endpoints),
     * Upload your own locally-stored, custom PDFs
     * View and download your generated podcast locally
+    * Specify your agent parameters (local vs Build endpoints),
     * (optional) Email your generated podcast to a recipient

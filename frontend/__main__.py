@@ -35,11 +35,11 @@ PDF to Markdown Service
 
 Monologue or Dialogue Creation Service
 
-* AI processes markdown content, enriching or structuring it to create natural and engaging audio content.
+ * AI processes markdown content, enriching or structuring it to create natural and engaging audio content.
 
 Text-to-Speech (TTS) Service
 
-* Converts the processed content into high-quality speech.
+ * Converts the processed content into high-quality speech.
 
 """
 
@@ -190,7 +190,7 @@ with gr.Blocks(css=css) as demo:
 
     def generate_podcast(target, context, recipient, settings):
         if target is None or len(target) == 0:
-            gr.Warning("Target PDF upload not detected. Please fix and try again. ")
+            gr.Warning("Target PDF upload not detected. Please upload a target PDF file and try again. ")
             return gr.update(visible=False)
         
         sender_email = os.environ["SENDER_EMAIL"] if "SENDER_EMAIL" in os.environ else None
