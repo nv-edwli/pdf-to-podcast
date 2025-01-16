@@ -221,7 +221,7 @@ Let's get started!
 5. When the build completes, set the following configurations.
 
    * `Environment` &rarr; `Secrets` &rarr; `Configure`. Specify the ``NVIDIA_API_KEY`` and ``ELEVENLABS_API_KEY`` Key.
-   * (Optional) To use the email functionality on the frontend application to send your generated podcasts to a recipient, you may also add a ``SENDER_EMAIL`` variable and a ``SENDER_EMAIL_PASSWORD`` secret to the project. Gmail sender accounts are currently supported; you can create an App Password for your account [here](https://support.google.com/mail/answer/185833). 
+   * (Optional) Add a ``SENDER_EMAIL`` variable and a ``SENDER_EMAIL_PASSWORD`` secret to the project to use the email functionality on the frontend application. Gmail sender accounts are currently supported; you can create an App Password for your account [here](https://support.google.com/mail/answer/185833). 
 
 6. Navigate to `Environment` &rarr; `Compose` and **Start** the Docker compose services. You can view progress under **Output** on the bottom left and selecting **Compose** logs from the dropdown. It may take a few minutes to pull and build the services. 
 
