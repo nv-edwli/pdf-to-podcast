@@ -297,18 +297,19 @@ def test_api(
             )
 
     # Process context files
-    for pdf_file in context_files:
-        if not os.path.isabs(pdf_file):
-            pdf_file = os.path.join(samples_dir, pdf_file)
-
-        with open(pdf_file, "rb") as f:
-            content = f.read()
-            form_data.append(
-                (
-                    "context_files",
-                    (os.path.basename(pdf_file), content, "application/pdf"),
+    if context_files is not None:
+        for pdf_file in context_files:
+            if not os.path.isabs(pdf_file):
+                pdf_file = os.path.join(samples_dir, pdf_file)
+    
+            with open(pdf_file, "rb") as f:
+                content = f.read()
+                form_data.append(
+                    (
+                        "context_files",
+                        (os.path.basename(pdf_file), content, "application/pdf"),
+                    )
                 )
-            )
 
     # Add transcription parameters
     form_data.append(("transcription_params", (None, json.dumps(transcription_params))))

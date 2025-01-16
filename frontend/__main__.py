@@ -21,6 +21,7 @@ import base64
 import json
 import sys
 import ast
+import re
 
 import uuid
 from frontend.utils import email_demo, logger
@@ -97,9 +98,20 @@ with gr.Blocks(css=css) as demo:
     with gr.Row():
         with gr.Column(scale=1): 
 
-            with gr.Tab("Architecture Diagram"):
-                gr.Markdown(BP_INFO_MARKDOWN)
-                gr.Image(value="frontend/static/diagram.png")
+            with gr.Tab("Full End to End Flow"):
+                gr.Markdown("### Upload at least one PDF file for a file to target or as context. ")
+                with gr.Row():
+                    target_files = gr.File(label="Upload target PDF", file_types=[".pdf"])
+                    context_files = gr.File(label="Upload context PDF", file_types=[".pdf"])
+                with gr.Row():
+                    settings = gr.CheckboxGroup(
+                        ["Monologue Only"], label="Additional Settings", info="Customize your podcast here"
+                    )   
+                with gr.Accordion("Optional: Email Details", open=False):
+                    gr.Markdown("Enter a recipient email here to receive your generated podcast in your inbox! \n\n**Note**: Ensure `SENDER_EMAIL` and `SENDER_EMAIL_PASSWORD` are configured in AI Workbench")
+                    recipient_email = gr.Textbox(label="Recipient email", placeholder="Enter email here")
+                                 
+                generate_button = gr.Button("Generate Podcast")
 
             with gr.Tab("Agent Configurations"):
                 gr.Markdown(CONFIG_INSTRUCTIONS_MARKDOWN)
@@ -119,22 +131,10 @@ with gr.Blocks(css=css) as demo:
                                     show_label=False,
                                     container=False,
                                 )
-    
-            with gr.Tab("Full End to End Flow"):
-                gr.Markdown("### Upload at least one PDF file for a file to target or as context. ")
-                with gr.Row():
-                    target_files = gr.File(label="Upload target PDF", file_types=[".pdf"])
-                    context_files = gr.File(label="Upload context PDF", file_types=[".pdf"])
-                with gr.Accordion("Optional: Email Details", open=False):
-                    gr.Markdown("Enter optional email details here to receive your generated podcast in your inbox!")
-                    sender_email = gr.Textbox(label="Sender Email", 
-                                              placeholder="Configure SENDER_EMAIL_PASSWORD as an AI Workbench secret!")
-                    recipient_email = gr.Textbox(label="Recipient email", placeholder="Enter email here")
-                with gr.Row():
-                    settings = gr.CheckboxGroup(
-                        ["Monologue Only"], label="Additional Settings", info="Customize your podcast here"
-                    )                    
-                generate_button = gr.Button("Generate Podcast")
+
+            with gr.Tab("Architecture Diagram"):
+                gr.Markdown(BP_INFO_MARKDOWN)
+                gr.Image(value="frontend/static/diagram.png")
 
         with gr.Column(scale=1):
             gr.Markdown("<br />")
@@ -182,7 +182,19 @@ with gr.Blocks(css=css) as demo:
     # %% editor actions
     editor.input(None, js=_CONFIG_CHANGES_JS)
 
-    def generate_podcast(target, context, sender, recipient, settings):
+    def validate_sender(sender):
+        if sender is None:
+            return False
+        regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(regex, sender))
+
+    def generate_podcast(target, context, recipient, settings):
+        if target is None or len(target) == 0:
+            gr.Warning("Target PDF upload not detected. Please fix and try again. ")
+            return gr.update(visible=False)
+        
+        sender_email = os.environ["SENDER_EMAIL"] if "SENDER_EMAIL" in os.environ else None
+        
         if isinstance(target, str):
             target = [target]
         if isinstance(context, str):
@@ -192,21 +204,27 @@ with gr.Blocks(css=css) as demo:
         monologue = True if "Monologue Only" in settings else False
         vdb = False # True if "Vector Database" in settings else False
         filename = str(uuid.uuid4())
-        email = [recipient] if (len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ) else [filename + "@"] # delimiter
+        sender_validation = validate_sender(sender_email)
+        if not sender_validation and len(recipient) > 0:
+            gr.Warning("SENDER_EMAIL not detected or malformed. Please fix or remove recipient email and try again. You may need to restart the container for Environment Variable changes to take effect. ")
+            return gr.update(visible=False)
+        elif sender_validation and len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" not in os.environ: 
+            gr.Warning("SENDER_EMAIL_PASSWORD not detected. Please fix or remove recipient email and try again. You may need to restart the container for Environment Variable changes to take effect. ")
+            return gr.update(visible=False)
+        email = [recipient] if (sender_validation and len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ) else [filename + "@"] # delimiter
 
         # Generate podcast
         email_demo.test_api(base_url, target, context, email, monologue, vdb)
 
         # Send file via email
-        if len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ:
-            email_demo.send_file_via_email("/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", sender, recipient)
+        if sender_validation and len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ:
+            email_demo.send_file_via_email("/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", sender_email, recipient)
             return gr.update(value="/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", visible=True)
 
         return gr.update(value="/project/frontend/demo_outputs/" + filename + "-output.mp3", visible=True)
 
     generate_button.click(generate_podcast, [target_files, 
                                              context_files, 
-                                             sender_email, 
                                              recipient_email, 
                                              settings], [output_file])
 
