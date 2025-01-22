@@ -70,6 +70,16 @@ css = """
 }
 """
 
+js_func = """
+function refresh() {
+    const url = new URL(window.location);
+    if (url.searchParams.get('__theme') !== 'dark') {
+        url.searchParams.set('__theme', 'dark');
+        window.location.href = url.href;
+    }
+}
+"""
+
 _CONFIG_CHANGES_JS = """
 async() => {
     title = document.querySelector("div#config-toolbar p");
@@ -92,7 +102,7 @@ with open("/project/models.json", "r", encoding="UTF-8") as config_file:
 sys.stdout = logger.Logger("/project/frontend/output.log")
 
 # Gradio Interface
-with gr.Blocks(css=css) as demo:
+with gr.Blocks(css=css, js=js_func) as demo:
     gr.Markdown("# NVIDIA AI Blueprint: PDF-to-Podcast")
 
     with gr.Row():
