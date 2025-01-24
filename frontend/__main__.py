@@ -150,6 +150,8 @@ with gr.Blocks(css=css, js=js_func) as demo:
             gr.Markdown("<br />")
             output = gr.Textbox(label="Outputs", placeholder="Outputs will show here when executing", max_lines=20, lines=20)
             output_file = gr.File(visible=False, interactive=False)
+            transcript_file = gr.File(visible=False, interactive=False)
+            history_file = gr.File(visible=False, interactive=False)
 
     demo.load(logger.read_logs, None, output, every=1)
     
@@ -177,12 +179,6 @@ with gr.Blocks(css=css, js=js_func) as demo:
         except Exception as err:
             raise SyntaxError(f"Error validating JSON syntax:\n{err}") from err
 
-        # validate configuration
-        # try:
-        #     _ = ChainConfiguration.model_validate(config_data)
-        # except Exception as err:
-        #     raise SyntaxError(f"Error validating configuration content:\n{err}") from err
-
         # save configuration
         with open("/project/models.json", "w", encoding="UTF-8") as cf:
             cf.write(config_txt)
@@ -197,6 +193,40 @@ with gr.Blocks(css=css, js=js_func) as demo:
             return False
         regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.match(regex, sender))
+
+    def get_transcript(filename, job_id):
+        service = os.environ["API_SERVICE_URL"]
+        url = f"{service}/saved_podcast/{job_id}/transcript"
+        params = {"userId": "test-userid"}
+        filepath = "/project/frontend/demo_outputs/transcript_" + filename + ".json"
+        
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            json_data = response.json()
+            with open(filepath, "w") as file:
+                json.dump(json_data, file)
+            print(f"JSON data saved to {filepath}")
+            return filepath
+        else:
+            print(f"Error retrieving transcript: {response.status_code}")
+            return filepath
+
+    def get_history(filename, job_id):
+        service = os.environ["API_SERVICE_URL"]
+        url = f"{service}/saved_podcast/{job_id}/history"
+        params = {"userId": "test-userid"}
+        filepath = "/project/frontend/demo_outputs/generation_history_" + filename + ".json"
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            json_data = response.json()
+            with open(filepath, "w") as file:
+                json.dump(json_data, file)
+            print(f"JSON data saved to {filepath}")
+            return filepath
+        else:
+            print(f"Error retrieving generation_history: {response.status_code}")
+            return filepath
 
     def generate_podcast(target, context, recipient, settings):
         if target is None or len(target) == 0:
@@ -224,19 +254,19 @@ with gr.Blocks(css=css, js=js_func) as demo:
         email = [recipient] if (sender_validation and len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ) else [filename + "@"] # delimiter
 
         # Generate podcast
-        email_demo.test_api(base_url, target, context, email, monologue, vdb)
+        job_id = email_demo.test_api(base_url, target, context, email, monologue, vdb)
 
         # Send file via email
         if sender_validation and len(recipient) > 0 and "SENDER_EMAIL_PASSWORD" in os.environ:
             email_demo.send_file_via_email("/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", sender_email, recipient)
-            return gr.update(value="/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", visible=True)
+            return gr.update(value="/project/frontend/demo_outputs/" + recipient.split('@')[0] + "-output.mp3", label="podcast audio", visible=True), gr.update(value=get_transcript(recipient.split('@')[0], job_id), label="podcast transcript", visible=True), gr.update(value=get_history(recipient.split('@')[0], job_id), label="generation history", visible=True)
 
-        return gr.update(value="/project/frontend/demo_outputs/" + filename + "-output.mp3", visible=True)
+        return gr.update(value="/project/frontend/demo_outputs/" + filename + "-output.mp3", label="podcast audio", visible=True), gr.update(value=get_transcript(filename, job_id), label="podcast transcript", visible=True), gr.update(value=get_history(filename, job_id), label="generation history", visible=True)
 
     generate_button.click(generate_podcast, [target_files, 
                                              context_files, 
                                              recipient_email, 
-                                             settings], [output_file])
+                                             settings], [output_file, transcript_file, history_file])
 
 # Launch Gradio app
 if __name__ == "__main__":

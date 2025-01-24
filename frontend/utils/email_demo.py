@@ -371,6 +371,7 @@ def test_api(
 
         finally:
             monitor.stop()
+            return job_id
 
     except Exception as e:
         print(f"Error during PDF submission: {e}")
