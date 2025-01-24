@@ -112,7 +112,7 @@ with gr.Blocks(css=css, js=js_func) as demo:
                 gr.Markdown("### Upload at least one PDF file for a file to target or as context. ")
                 with gr.Row():
                     target_files = gr.File(label="Upload target PDF", file_types=[".pdf"])
-                    context_files = gr.File(label="Upload context PDF", file_types=[".pdf"])
+                    context_files = gr.File(label="Upload context PDF", file_types=[".pdf"], file_count="multiple")
                 with gr.Row():
                     settings = gr.CheckboxGroup(
                         ["Monologue Only"], label="Additional Settings", info="Customize your podcast here"
