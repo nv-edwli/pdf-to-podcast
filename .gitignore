@@ -67,3 +67,6 @@ coverage.xml
 cover/
 
 # Workbench Project Layout
+frontend/demo_outputs/*.mp3
+frontend/demo_outputs/*.json
+frontend/output.log
