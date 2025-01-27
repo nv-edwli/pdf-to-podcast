@@ -50,7 +50,7 @@ Let's get started!
         ```
 
 
-8. (Option 1) Run the **Jupyter Notebook**. On the top right of the AI Workbench window, select **Open Jupyterlab**. Navigate to ``launchable/PDFtoPodcast.ipynb``, skip the setup sections, and get started immediately with the provided sample PDFs.
+8. (Option 1) Run the **Jupyter Notebook**. On the top right of the AI Workbench window, select **Open Jupyterlab**. Navigate to ``workbench/PDFtoPodcast.ipynb``, skip the setup sections, and get started immediately with the provided sample PDFs.
 
 9. (Option 2) Run the **Frontend application**. On the top right of the AI Workbench window, select **Open Frontend**.
 
